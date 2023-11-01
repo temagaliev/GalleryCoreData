@@ -14,6 +14,8 @@
 		2429DD972AF11C15004C472C /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2429DD952AF11C15004C472C /* MenuViewController.swift */; };
 		2429DD982AF11C15004C472C /* MenuViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2429DD962AF11C15004C472C /* MenuViewController.xib */; };
 		2429DD9A2AF13113004C472C /* PhotoCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2429DD992AF13113004C472C /* PhotoCollectionViewCell.swift */; };
+		2429DD9F2AF144F6004C472C /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2429DD9E2AF144F6004C472C /* CoreDataManager.swift */; };
+		24BC16142AF2480100E4D6A2 /* CoreData.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 24BC16122AF2480100E4D6A2 /* CoreData.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +28,8 @@
 		2429DD952AF11C15004C472C /* MenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuViewController.swift; sourceTree = "<group>"; };
 		2429DD962AF11C15004C472C /* MenuViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MenuViewController.xib; sourceTree = "<group>"; };
 		2429DD992AF13113004C472C /* PhotoCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCollectionViewCell.swift; sourceTree = "<group>"; };
+		2429DD9E2AF144F6004C472C /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
+		24BC16132AF2480100E4D6A2 /* CoreData.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreData.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,10 +64,12 @@
 			children = (
 				2429DD7F2AF11B6F004C472C /* AppDelegate.swift */,
 				2429DD932AF11BF6004C472C /* MainRouter.swift */,
+				2429DD9E2AF144F6004C472C /* CoreDataManager.swift */,
 				2429DD9B2AF14112004C472C /* UI */,
 				2429DD882AF11B72004C472C /* Assets.xcassets */,
 				2429DD8A2AF11B72004C472C /* LaunchScreen.storyboard */,
 				2429DD8D2AF11B72004C472C /* Info.plist */,
+				24BC16122AF2480100E4D6A2 /* CoreData.xcdatamodeld */,
 			);
 			path = "Gallery Core Data";
 			sourceTree = "<group>";
@@ -167,7 +173,9 @@
 			files = (
 				2429DD802AF11B6F004C472C /* AppDelegate.swift in Sources */,
 				2429DD9A2AF13113004C472C /* PhotoCollectionViewCell.swift in Sources */,
+				24BC16142AF2480100E4D6A2 /* CoreData.xcdatamodeld in Sources */,
 				2429DD972AF11C15004C472C /* MenuViewController.swift in Sources */,
+				2429DD9F2AF144F6004C472C /* CoreDataManager.swift in Sources */,
 				2429DD942AF11BF6004C472C /* MainRouter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -381,6 +389,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		24BC16122AF2480100E4D6A2 /* CoreData.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				24BC16132AF2480100E4D6A2 /* CoreData.xcdatamodel */,
+			);
+			currentVersion = 24BC16132AF2480100E4D6A2 /* CoreData.xcdatamodel */;
+			path = CoreData.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 2429DD742AF11B6F004C472C /* Project object */;
 }

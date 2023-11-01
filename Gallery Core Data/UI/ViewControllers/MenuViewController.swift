@@ -12,6 +12,8 @@ class MenuViewController: UIViewController {
     
     private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
+    var arrayPhoto: [Photo] = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -22,6 +24,11 @@ class MenuViewController: UIViewController {
                 
         configurateBarButtonItems()
 
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        loadImageViewFromCoreData()
     }
     
     override func viewDidLayoutSubviews() {
@@ -43,22 +50,37 @@ class MenuViewController: UIViewController {
     
     private func createPhotoLibrary() {
         var config = PHPickerConfiguration()
-        config.selectionLimit = 10
+        config.selectionLimit = 50
         let pickerVC = PHPickerViewController(configuration: config)
         pickerVC.delegate = self
         self.present(pickerVC, animated: true)
+    }
+    
+    private func loadImageViewFromCoreData() {
+        let coreDataQueue = DispatchQueue.global(qos: .background)
+        coreDataQueue.sync {
+            arrayPhoto = CoreDataManager.shared.fetchPhotos()
+        }
+        coreDataQueue.sync {
+            collectionView.reloadData()
+        }
     }
 }
 
 //MARK: - UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout
 extension MenuViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 30
+        return arrayPhoto.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PhotoCollectionViewCell.identifier, for: indexPath)
-        return cell
+        if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PhotoCollectionViewCell.identifier, for: indexPath) as? PhotoCollectionViewCell {
+            if let image = arrayPhoto[indexPath.row].imageData {
+                cell.photoImageView.image = UIImage(data: image)
+            }
+            return cell
+        }
+        return UICollectionViewCell()
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -84,10 +106,21 @@ extension MenuViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         dismiss(animated: true)
         
-        for result in results {
-            result.itemProvider.loadObject(ofClass: UIImage.self) { object, error in
+        for result in 0...results.count - 1 {
+            results[result].itemProvider.loadObject(ofClass: UIImage.self) { object, error in
                 if let image = object as? UIImage {
                     //Добавление картинки в Core Data
+                    if let imageData = image.jpegData(compressionQuality: 1) {
+                        DispatchQueue.main.async { [weak self] in
+                            CoreDataManager.shared.createPhoto(imageData)
+                            if result / 3 == 0 {
+                                self?.loadImageViewFromCoreData()
+                            } else if result == results.count - 1 {
+                                self?.loadImageViewFromCoreData()
+
+                            }
+                        }
+                    }
                 }
             }
         }
