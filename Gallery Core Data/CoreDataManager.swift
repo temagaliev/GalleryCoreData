@@ -9,9 +9,11 @@ import CoreData
 import UIKit
 
 public final class CoreDataManager: NSObject {
+    
     public static let shared = CoreDataManager()
     private override init(){}
-    private var photoName: String = "Photo"
+    
+    private let constants = Constants()
     
     private var appDelegate: AppDelegate {
         UIApplication.shared.delegate as! AppDelegate
@@ -22,7 +24,7 @@ public final class CoreDataManager: NSObject {
     }
     
     public func createPhoto(_ imageData: Data) {
-        guard let photoEntityDescription = NSEntityDescription.entity(forEntityName: photoName, in: context) else {
+        guard let photoEntityDescription = NSEntityDescription.entity(forEntityName: constants.photoName, in: context) else {
             return
         }
         let photo = Photo(entity: photoEntityDescription, insertInto: context)
@@ -30,10 +32,8 @@ public final class CoreDataManager: NSObject {
         appDelegate.saveContext()
     }
     
-    
-    
     public func fetchPhotos() -> [Photo] {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: photoName)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: constants.photoName)
         do {
             return try context.fetch(fetchRequest) as! [Photo]
         } catch {
@@ -43,7 +43,7 @@ public final class CoreDataManager: NSObject {
     }
     
     public func deleteAllPhoto() {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: photoName)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: constants.photoName)
         do {
             let photos = try? context.fetch(fetchRequest) as? [Photo]
             photos?.forEach {context.delete($0)}
@@ -52,13 +52,18 @@ public final class CoreDataManager: NSObject {
     }
     
     public func deletePhoto(with imageData: Data) {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: photoName)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: constants.photoName)
         do {
             guard let photos = try? context.fetch(fetchRequest) as? [Photo],
                   let photo = photos.first(where: {$0.imageData == imageData}) else {return}
             context.delete(photo)
         }
-        
         appDelegate.saveContext()
+    }
+}
+
+private extension CoreDataManager {
+    private struct Constants {
+        let photoName: String = "Photo"
     }
 }

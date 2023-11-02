@@ -8,9 +8,12 @@
 import UIKit
 import PhotosUI
 
+
 class MenuViewController: UIViewController {
     
     private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    
+    private let constants = Constants()
     
     var arrayPhoto: [Photo] = []
     
@@ -41,11 +44,54 @@ class MenuViewController: UIViewController {
             barButtonSystemItem: .add,
             target: self,
             action: #selector(onGalleryButtonClick))
-        navigationItem.title = "Protected Gallery"
+        navigationItem.title = constants.titleForNavigationItem
     }
     
     @objc func onGalleryButtonClick() {
-        createPhotoLibrary()
+        checkingPermissionToViewPhotos()
+    }
+    
+    //TODO: - Добавить обработку при выборе определенных фотографий из галлереи, сейчас показываются все фотографии
+    private func checkingPermissionToViewPhotos() {
+        let status = PHPhotoLibrary.authorizationStatus()
+
+        switch status {
+        case .authorized:
+            createPhotoLibrary()
+        case .denied:
+            createAlertSettings()
+        case .notDetermined:
+            PHPhotoLibrary.requestAuthorization() { response in
+                print(response.rawValue)
+            }
+        case .restricted:
+            createAlertSettings()
+        case .limited:
+            createAlertSettings()
+        default:
+            createAlertSettings()
+        }
+    }
+    
+    private func createAlertSettings() {
+        let alertController = UIAlertController(title: constants.titleForAlert,
+                                                message: constants.titleForAlertMessage,
+                                                preferredStyle: .alert)
+        
+        let actionSettings = UIAlertAction(title: constants.titleForActionSettings, style: .default) { action in
+            guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else { return }
+            
+            //TODO: - Указать путь до настроек приложения, а не просто открыть настройки
+            UIApplication.shared.open(settingsUrl, options: [:], completionHandler: nil)
+        }
+        
+        let actionCancel = UIAlertAction(title: constants.titleForActionCancel, style: .cancel)
+        
+        alertController.addAction(actionSettings)
+        alertController.addAction(actionCancel)
+        
+        present(alertController, animated: true)
+
     }
     
     private func createPhotoLibrary() {
@@ -69,6 +115,7 @@ class MenuViewController: UIViewController {
 
 //MARK: - UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout
 extension MenuViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return arrayPhoto.count
     }
@@ -98,7 +145,6 @@ extension MenuViewController: UICollectionViewDelegate, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 1, left: 1, bottom: 1, right: 1)
     }
-    
 }
 
 //MARK: - PHPickerViewControllerDelegate
@@ -106,23 +152,34 @@ extension MenuViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         dismiss(animated: true)
         
-        for result in 0...results.count - 1 {
-            results[result].itemProvider.loadObject(ofClass: UIImage.self) { object, error in
-                if let image = object as? UIImage {
-                    //Добавление картинки в Core Data
-                    if let imageData = image.jpegData(compressionQuality: 1) {
-                        DispatchQueue.main.async { [weak self] in
-                            CoreDataManager.shared.createPhoto(imageData)
-                            if result / 3 == 0 {
-                                self?.loadImageViewFromCoreData()
-                            } else if result == results.count - 1 {
-                                self?.loadImageViewFromCoreData()
-
+        if results.count != 0 {
+            for result in 0...results.count - 1 {
+                results[result].itemProvider.loadObject(ofClass: UIImage.self) { object, error in
+                    if let image = object as? UIImage {
+                        //Добавление картинки в Core Data
+                        if let imageData = image.jpegData(compressionQuality: 1) {
+                            DispatchQueue.main.async { [weak self] in
+                                guard let self = self else { return }
+                                CoreDataManager.shared.createPhoto(imageData)
+                                if result == results.count - 1 {
+                                    self.loadImageViewFromCoreData()
+                                }
                             }
                         }
                     }
                 }
             }
         }
+    }
+}
+
+//MARK: - Constants
+private extension MenuViewController {
+    private struct Constants {
+        let titleForNavigationItem: String = "Protected Gallery"
+        let titleForAlert: String = "Allow acces to Photos"
+        let titleForAlertMessage: String = "Go to settings and allow access to photos"
+        let titleForActionCancel: String = "Cancel"
+        let titleForActionSettings: String = "OK"
     }
 }

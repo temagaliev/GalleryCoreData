@@ -20,9 +20,6 @@ class PhotoCollectionViewCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.addSubview(photoImageView)
-        
-        let image = UIImage(named: "image")
-        photoImageView.image = image
     }
     
     required init?(coder: NSCoder) {
@@ -33,6 +30,4 @@ class PhotoCollectionViewCell: UICollectionViewCell {
         super.layoutSubviews()
         photoImageView.frame = contentView.bounds
     }
-    
-
 }
